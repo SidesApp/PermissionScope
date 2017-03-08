@@ -7,21 +7,21 @@
 //
 
 import UIKit
-import CoreLocation
-import AddressBook
+//import CoreLocation
+//import AddressBook
 import AVFoundation
 import Photos
-import EventKit
-import CoreBluetooth
-import CoreMotion
-import Contacts
+//import EventKit
+//import CoreBluetooth
+//import CoreMotion
+//import Contacts
 
 public typealias statusRequestClosure = (_ status: PermissionStatus) -> Void
 public typealias authClosureType      = (_ finished: Bool, _ results: [PermissionResult]) -> Void
 public typealias cancelClosureType    = (_ results: [PermissionResult]) -> Void
 typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
 
-@objc public class PermissionScope: UIViewController, CLLocationManagerDelegate, UIGestureRecognizerDelegate, CBPeripheralManagerDelegate {
+@objc public class PermissionScope: UIViewController, UIGestureRecognizerDelegate {
 
     // MARK: UI Parameters
     
@@ -61,20 +61,20 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
     public let contentView = UIView()
 
     // MARK: - Various lazy managers
-    lazy var locationManager:CLLocationManager = {
-        let lm = CLLocationManager()
-        lm.delegate = self
-        return lm
-    }()
+//    lazy var locationManager:CLLocationManager = {
+//        let lm = CLLocationManager()
+//        lm.delegate = self
+//        return lm
+//    }()
 
-    lazy var bluetoothManager:CBPeripheralManager = {
-        return CBPeripheralManager(delegate: self, queue: nil, options:[CBPeripheralManagerOptionShowPowerAlertKey: false])
-    }()
-    
-    lazy var motionManager:CMMotionActivityManager = {
-        return CMMotionActivityManager()
-    }()
-    
+//    lazy var bluetoothManager:CBPeripheralManager = {
+//        return CBPeripheralManager(delegate: self, queue: nil, options:[CBPeripheralManagerOptionShowPowerAlertKey: false])
+//    }()
+//    
+//    lazy var motionManager:CMMotionActivityManager = {
+//        return CMMotionActivityManager()
+//    }()
+  
     /// NSUserDefaults standardDefaults lazy var
     lazy var defaults:UserDefaults = {
         return .standard
@@ -420,25 +420,25 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
     Requests access to LocationAlways, if necessary.
     */
     public func requestLocationAlways() {
-    	let hasAlwaysKey:Bool = !Bundle.main
-    		.object(forInfoDictionaryKey: Constants.InfoPlistKeys.locationAlways).isNil
-    	assert(hasAlwaysKey, Constants.InfoPlistKeys.locationAlways + " not found in Info.plist.")
-    	
-        let status = statusLocationAlways()
-        switch status {
-        case .unknown:
-            if CLLocationManager.authorizationStatus() == .authorizedWhenInUse {
-                defaults.set(true, forKey: Constants.NSUserDefaultsKeys.requestedInUseToAlwaysUpgrade)
-                defaults.synchronize()
-            }
-            locationManager.requestAlwaysAuthorization()
-        case .unauthorized:
-            self.showDeniedAlert(.locationAlways)
-        case .disabled:
-            self.showDisabledAlert(.locationInUse)
-        default:
-            break
-        }
+//    	let hasAlwaysKey:Bool = !Bundle.main
+//    		.object(forInfoDictionaryKey: Constants.InfoPlistKeys.locationAlways).isNil
+//    	assert(hasAlwaysKey, Constants.InfoPlistKeys.locationAlways + " not found in Info.plist.")
+//    	
+//        let status = statusLocationAlways()
+//        switch status {
+//        case .unknown:
+//            if CLLocationManager.authorizationStatus() == .authorizedWhenInUse {
+//                defaults.set(true, forKey: Constants.NSUserDefaultsKeys.requestedInUseToAlwaysUpgrade)
+//                defaults.synchronize()
+//            }
+//            locationManager.requestAlwaysAuthorization()
+//        case .unauthorized:
+//            self.showDeniedAlert(.locationAlways)
+//        case .disabled:
+//            self.showDisabledAlert(.locationInUse)
+//        default:
+//            break
+//        }
     }
 
     /**
@@ -466,21 +466,21 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
     Requests access to LocationWhileInUse, if necessary.
     */
     public func requestLocationInUse() {
-    	let hasWhenInUseKey :Bool = !Bundle.main
-    		.object(forInfoDictionaryKey: Constants.InfoPlistKeys.locationWhenInUse).isNil
-    	assert(hasWhenInUseKey, Constants.InfoPlistKeys.locationWhenInUse + " not found in Info.plist.")
+//    	let hasWhenInUseKey :Bool = !Bundle.main
+//    		.object(forInfoDictionaryKey: Constants.InfoPlistKeys.locationWhenInUse).isNil
+//    	assert(hasWhenInUseKey, Constants.InfoPlistKeys.locationWhenInUse + " not found in Info.plist.")
     	
-        let status = statusLocationInUse()
-        switch status {
-        case .unknown:
-            locationManager.requestWhenInUseAuthorization()
-        case .unauthorized:
-            self.showDeniedAlert(.locationInUse)
-        case .disabled:
-            self.showDisabledAlert(.locationInUse)
-        default:
-            break
-        }
+//        let status = statusLocationInUse()
+//        switch status {
+//        case .unknown:
+//            locationManager.requestWhenInUseAuthorization()
+//        case .unauthorized:
+//            self.showDeniedAlert(.locationInUse)
+//        case .disabled:
+//            self.showDisabledAlert(.locationInUse)
+//        default:
+//            break
+//        }
     }
 
     // MARK: Contacts
@@ -491,52 +491,31 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
     - returns: Permission status for the requested type.
     */
     public func statusContacts() -> PermissionStatus {
-        if #available(iOS 9.0, *) {
-            let status = CNContactStore.authorizationStatus(for: .contacts)
-            switch status {
-            case .authorized:
-                return .authorized
-            case .restricted, .denied:
-                return .unauthorized
-            case .notDetermined:
-                return .unknown
-            }
-        } else {
-            // Fallback on earlier versions
-            let status = ABAddressBookGetAuthorizationStatus()
-            switch status {
-            case .authorized:
-                return .authorized
-            case .restricted, .denied:
-                return .unauthorized
-            case .notDetermined:
-                return .unknown
-            }
-        }
+        return .unknown
     }
 
     /**
     Requests access to Contacts, if necessary.
     */
     public func requestContacts() {
-        let status = statusContacts()
-        switch status {
-        case .unknown:
-            if #available(iOS 9.0, *) {
-                CNContactStore().requestAccess(for: .contacts, completionHandler: {
-                    success, error in
-                    self.detectAndCallback()
-                })
-            } else {
-                ABAddressBookRequestAccessWithCompletion(nil) { success, error in
-                    self.detectAndCallback()
-                }
-            }
-        case .unauthorized:
-            self.showDeniedAlert(.contacts)
-        default:
-            break
-        }
+//        let status = statusContacts()
+//        switch status {
+//        case .unknown:
+//            if #available(iOS 9.0, *) {
+//                CNContactStore().requestAccess(for: .contacts, completionHandler: {
+//                    success, error in
+//                    self.detectAndCallback()
+//                })
+//            } else {
+//                ABAddressBookRequestAccessWithCompletion(nil) { success, error in
+//                    self.detectAndCallback()
+//                }
+//            }
+//        case .unauthorized:
+//            self.showDeniedAlert(.contacts)
+//        default:
+//            break
+//        }
     }
 
     // MARK: Notifications
@@ -776,33 +755,33 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
     - returns: Permission status for the requested type.
     */
     public func statusReminders() -> PermissionStatus {
-        let status = EKEventStore.authorizationStatus(for: .reminder)
-        switch status {
-        case .authorized:
-            return .authorized
-        case .restricted, .denied:
-            return .unauthorized
-        case .notDetermined:
+//        let status = EKEventStore.authorizationStatus(for: .reminder)
+//        switch status {
+//        case .authorized:
+//            return .authorized
+//        case .restricted, .denied:
+//            return .unauthorized
+//        case .notDetermined:
             return .unknown
-        }
+//        }
     }
     
     /**
     Requests access to Reminders, if necessary.
     */
     public func requestReminders() {
-        let status = statusReminders()
-        switch status {
-        case .unknown:
-            EKEventStore().requestAccess(to: .reminder,
-                completion: { granted, error in
-                    self.detectAndCallback()
-            })
-        case .unauthorized:
-            self.showDeniedAlert(.reminders)
-        default:
-            break
-        }
+//        let status = statusReminders()
+//        switch status {
+//        case .unknown:
+//            EKEventStore().requestAccess(to: .reminder,
+//                completion: { granted, error in
+//                    self.detectAndCallback()
+//            })
+//        case .unauthorized:
+//            self.showDeniedAlert(.reminders)
+//        default:
+//            break
+//        }
     }
     
     // MARK: Events
@@ -813,33 +792,33 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
     - returns: Permission status for the requested type.
     */
     public func statusEvents() -> PermissionStatus {
-        let status = EKEventStore.authorizationStatus(for: .event)
-        switch status {
-        case .authorized:
-            return .authorized
-        case .restricted, .denied:
-            return .unauthorized
-        case .notDetermined:
+//        let status = EKEventStore.authorizationStatus(for: .event)
+//        switch status {
+//        case .authorized:
+//            return .authorized
+//        case .restricted, .denied:
+//            return .unauthorized
+//        case .notDetermined:
             return .unknown
-        }
+//        }
     }
     
     /**
     Requests access to Events, if necessary.
     */
     public func requestEvents() {
-        let status = statusEvents()
-        switch status {
-        case .unknown:
-            EKEventStore().requestAccess(to: .event,
-                completion: { granted, error in
-                    self.detectAndCallback()
-            })
-        case .unauthorized:
-            self.showDeniedAlert(.events)
-        default:
-            break
-        }
+//        let status = statusEvents()
+//        switch status {
+//        case .unknown:
+//            EKEventStore().requestAccess(to: .event,
+//                completion: { granted, error in
+//                    self.detectAndCallback()
+//            })
+//        case .unauthorized:
+//            self.showDeniedAlert(.events)
+//        default:
+//            break
+//        }
     }
     
     // MARK: Bluetooth
@@ -864,25 +843,25 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
     - returns: Permission status for the requested type.
     */
     public func statusBluetooth() -> PermissionStatus {
-        // if already asked for bluetooth before, do a request to get status, else wait for user to request
-        if askedBluetooth{
-            triggerBluetoothStatusUpdate()
-        } else {
+//        // if already asked for bluetooth before, do a request to get status, else wait for user to request
+//        if askedBluetooth{
+//            triggerBluetoothStatusUpdate()
+//        } else {
+//            return .unknown
+//        }
+//        
+//        let state = (bluetoothManager.state, CBPeripheralManager.authorizationStatus())
+//        switch state {
+//        case (.unsupported, _), (.poweredOff, _), (_, .restricted):
+//            return .disabled
+//        case (.unauthorized, _), (_, .denied):
+//            return .unauthorized
+//        case (.poweredOn, .authorized):
+//            return .authorized
+//        default:
             return .unknown
-        }
-        
-        let state = (bluetoothManager.state, CBPeripheralManager.authorizationStatus())
-        switch state {
-        case (.unsupported, _), (.poweredOff, _), (_, .restricted):
-            return .disabled
-        case (.unauthorized, _), (_, .denied):
-            return .unauthorized
-        case (.poweredOn, .authorized):
-            return .authorized
-        default:
-            return .unknown
-        }
-        
+//        }
+      
     }
     
     /**
@@ -908,12 +887,12 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
     its permission dialog.
     */
     fileprivate func triggerBluetoothStatusUpdate() {
-        if !waitingForBluetooth && bluetoothManager.state == .unknown {
-            bluetoothManager.startAdvertising(nil)
-            bluetoothManager.stopAdvertising()
-            askedBluetooth = true
-            waitingForBluetooth = true
-        }
+//        if !waitingForBluetooth && bluetoothManager.state == .unknown {
+//            bluetoothManager.startAdvertising(nil)
+//            bluetoothManager.stopAdvertising()
+//            askedBluetooth = true
+//            waitingForBluetooth = true
+//        }
     }
     
     // MARK: Core Motion Activity
@@ -949,29 +928,29 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
     Prompts motionManager to request a status update. If permission is not already granted the user will be prompted with the system's permission dialog.
     */
     fileprivate func triggerMotionStatusUpdate() {
-        let tmpMotionPermissionStatus = motionPermissionStatus
-        defaults.set(true, forKey: Constants.NSUserDefaultsKeys.requestedMotion)
-        defaults.synchronize()
-        
-        let today = Date()
-        motionManager.queryActivityStarting(from: today,
-            to: today,
-            to: .main) { activities, error in
-                if let error = error , error._code == Int(CMErrorMotionActivityNotAuthorized.rawValue) {
-                    self.motionPermissionStatus = .unauthorized
-                } else {
-                    self.motionPermissionStatus = .authorized
-                }
-                
-                self.motionManager.stopActivityUpdates()
-                if tmpMotionPermissionStatus != self.motionPermissionStatus {
-                    self.waitingForMotion = false
-                    self.detectAndCallback()
-                }
-        }
-        
-        askedMotion = true
-        waitingForMotion = true
+//        let tmpMotionPermissionStatus = motionPermissionStatus
+//        defaults.set(true, forKey: Constants.NSUserDefaultsKeys.requestedMotion)
+//        defaults.synchronize()
+//        
+//        let today = Date()
+//        motionManager.queryActivityStarting(from: today,
+//            to: today,
+//            to: .main) { activities, error in
+//                if let error = error , error._code == Int(CMErrorMotionActivityNotAuthorized.rawValue) {
+//                    self.motionPermissionStatus = .unauthorized
+//                } else {
+//                    self.motionPermissionStatus = .authorized
+//                }
+//                
+//                self.motionManager.stopActivityUpdates()
+//                if tmpMotionPermissionStatus != self.motionPermissionStatus {
+//                    self.waitingForMotion = false
+//                    self.detectAndCallback()
+//                }
+//        }
+//        
+//        askedMotion = true
+//        waitingForMotion = true
     }
     
     /// Returns whether Bluetooth access was asked before or not.
@@ -1109,10 +1088,10 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
     
     // MARK: Bluetooth delegate
     
-    public func peripheralManagerDidUpdateState(_ peripheral: CBPeripheralManager) {
-        waitingForBluetooth = false
-        detectAndCallback()
-    }
+//    public func peripheralManagerDidUpdateState(_ peripheral: CBPeripheralManager) {
+//        waitingForBluetooth = false
+//        detectAndCallback()
+//    }
 
     // MARK: - UI Helpers
     
