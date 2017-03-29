@@ -7,7 +7,7 @@
 //
 
 import UIKit
-//import CoreLocation
+import CoreLocation
 //import AddressBook
 import AVFoundation
 import Photos
@@ -21,7 +21,7 @@ public typealias authClosureType      = (_ finished: Bool, _ results: [Permissio
 public typealias cancelClosureType    = (_ results: [PermissionResult]) -> Void
 typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
 
-@objc public class PermissionScope: UIViewController, UIGestureRecognizerDelegate {
+@objc public class PermissionScope: UIViewController, UIGestureRecognizerDelegate, CLLocationManagerDelegate {
 
     // MARK: UI Parameters
     
@@ -61,11 +61,11 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
     public let contentView = UIView()
 
     // MARK: - Various lazy managers
-//    lazy var locationManager:CLLocationManager = {
-//        let lm = CLLocationManager()
-//        lm.delegate = self
-//        return lm
-//    }()
+    lazy var locationManager:CLLocationManager = {
+        let lm = CLLocationManager()
+        lm.delegate = self
+        return lm
+    }()
 
 //    lazy var bluetoothManager:CBPeripheralManager = {
 //        return CBPeripheralManager(delegate: self, queue: nil, options:[CBPeripheralManagerOptionShowPowerAlertKey: false])
@@ -466,21 +466,21 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
     Requests access to LocationWhileInUse, if necessary.
     */
     public func requestLocationInUse() {
-//    	let hasWhenInUseKey :Bool = !Bundle.main
-//    		.object(forInfoDictionaryKey: Constants.InfoPlistKeys.locationWhenInUse).isNil
-//    	assert(hasWhenInUseKey, Constants.InfoPlistKeys.locationWhenInUse + " not found in Info.plist.")
+    	let hasWhenInUseKey :Bool = !Bundle.main
+    		.object(forInfoDictionaryKey: Constants.InfoPlistKeys.locationWhenInUse).isNil
+    	assert(hasWhenInUseKey, Constants.InfoPlistKeys.locationWhenInUse + " not found in Info.plist.")
     	
-//        let status = statusLocationInUse()
-//        switch status {
-//        case .unknown:
-//            locationManager.requestWhenInUseAuthorization()
-//        case .unauthorized:
-//            self.showDeniedAlert(.locationInUse)
-//        case .disabled:
-//            self.showDisabledAlert(.locationInUse)
-//        default:
-//            break
-//        }
+        let status = statusLocationInUse()
+        switch status {
+        case .unknown:
+            locationManager.requestWhenInUseAuthorization()
+        case .unauthorized:
+            self.showDeniedAlert(.locationInUse)
+        case .disabled:
+            self.showDisabledAlert(.locationInUse)
+        default:
+            break
+        }
     }
 
     // MARK: Contacts
